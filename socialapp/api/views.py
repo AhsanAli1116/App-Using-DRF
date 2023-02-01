@@ -1,16 +1,16 @@
-from .helper import is_email_valid,user_data
-from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import render
-from rest_framework.response import Response
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
 from django.http import HttpResponse
-from .serializers import PostsSerializer,MainRegisterSerializer
-from rest_framework.views import APIView
+from django.shortcuts import render
 from rest_framework import status
-from .models import Posts,UserDetail
+# from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from django.contrib.auth.models import User
-from django.contrib.auth.hashers import make_password
+from .helper import is_email_valid, user_data
+from .models import Posts, UserDetail
+from .serializers import MainRegisterSerializer, PostsSerializer,UserDetailSerializer
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -32,12 +32,15 @@ class PostsApi(APIView):
     # permission_classes = [IsAuthenticated]
     def get(self,request,id=None):
         if id:
-            posts = Posts.objects.filter(author=id)
-            serializer = PostsSerializer(posts,many=True)
-            return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
+            try:
+                posts = Posts.objects.filter(author=id)
+                serializer = PostsSerializer(posts,many=True)
+                return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
+            except:
+                return Response({"status": "error", "data":"Post Not Found"}, status=status.HTTP_200_OK)
         posts = Posts.objects.all()
         serializer = PostsSerializer(posts, many=True)
-        return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK) 
+        return Response({"status": "success", "data": serializer.data}, status=status.HTTP_400_BAD_REQUEST) 
     
     def post(self,request):
         serializer = PostsSerializer(data=request.data)
@@ -48,20 +51,26 @@ class PostsApi(APIView):
             return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request):
-        pid = request.data['id']
-        post = Posts.objects.get(id=pid)
-        serializer = PostsSerializer(post, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"status": "success", "data": serializer.data},status=status.HTTP_200_OK)
-        else:
-            return Response({"status": "error", "data": serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+        try:
+            pid = request.data['id']
+            post = Posts.objects.get(id=pid)
+            serializer = PostsSerializer(post, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"status": "success", "data": serializer.data},status=status.HTTP_200_OK)
+            else:
+                return Response({"status": "error", "data": serializer.errors},status=status.HTTP_400_BAD_REQUEST)
+        except:
+             return Response({"status": "error", "data": "Post Not Found"},status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request,id):
-        pid = request.data['id']
-        post = Posts.objects.get(Posts, id=pid)
-        post.delete()
-        return Response({"status": "success", "data": "Post Deleted"})
+        try:
+            pid = request.data['id']
+            post = Posts.objects.get(Posts, id=pid)
+            post.delete()
+            return Response({"status": "success", "data": "Post Deleted"})
+        except:
+            return Response({"status": "error", "data": "Post not found"})
    
    
 
@@ -69,9 +78,7 @@ class PostsApi(APIView):
 class RegistrationApi(APIView):
     serializer_class = MainRegisterSerializer
     def post(self,request):
-        # username=request.data['username']
         email = request.data['email']
-        # password = request.data['password']
         email_check=is_email_valid(email)
         if len(email_check)==1:
             email_format,email_smtp=False
@@ -96,6 +103,17 @@ class RegistrationApi(APIView):
 
         else:
             return Response({"status":'error','data': "Email Invalid"},status=status.HTTP_400_BAD_REQUEST)
+    
+class UserDetails(APIView):
+    def get(self,request,id):
+            try:
+                user_detail = UserDetail.objects.get(id=id)
+                serializer = UserDetailSerializer(user_detail)
+                return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
+            except:
+                return Response({"status": "error" },status=status.HTTP_400_BAD_REQUEST)
+
+
 
 
 

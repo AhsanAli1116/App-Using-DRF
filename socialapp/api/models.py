@@ -17,9 +17,9 @@ class Posts(models.Model):
 
 class UserDetail(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    country= models.CharField(max_length=50,blank=True)
-    country_code = models.CharField(max_length=10,blank=True)
-    city=models.CharField(max_length=50,blank=True)
+    country= models.CharField(max_length=50,blank=True,null=True)
+    country_code = models.CharField(max_length=10,blank=True,null=True)
+    city=models.CharField(max_length=50,blank=True,null=True)
     is_holiday = models.BooleanField()
     holiday = models.CharField(max_length=100,blank=True)
     def __str__(self):
