@@ -67,11 +67,5 @@ def user_data(email):
             bool_holi,holi_name=False,""
         else:
             bool_holi,holi_name=holi
-
-    # data={'username':username,'email':email,'password':password,
-    #     'city':city,'country':country,'country_code':country_code,
-    #     'is_holiday':bool_holi,'holiday':holi_name
-    # }
-    # return data
     return (city,country,country_code,bool_holi,holi_name)
 
