@@ -23,5 +23,6 @@ api/posts : for all posts
 
 api/posts/<str:id> : for getting specify user posts
 
-
+## helper.py 
+this file contains wrapper functions for third party apis 
 
