@@ -3,37 +3,25 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework import status
-# from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.views import TokenObtainPairView
+from django.conf import settings
 from .helper import is_email_valid, user_data
 from .models import Posts, UserDetail
 from .serializers import MainRegisterSerializer, PostsSerializer,UserDetailSerializer
-
-
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-
-        # Add custom claims
-        token['username'] = user.username
-        # ...
-
-        return token
-
-class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
 # Create your views here.
 class PostsApi(APIView):
-    # permission_classes = [IsAuthenticated]
-    def get(self,request,id=None):
-        if id:
+    authentication_classes =[JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        if request.data:
             try:
-                posts = Posts.objects.filter(author=id)
+                posts = Posts.objects.filter(author=request.data['userid'])
                 serializer = PostsSerializer(posts,many=True)
                 return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
             except:
@@ -105,9 +93,11 @@ class RegistrationApi(APIView):
             return Response({"status":'error','data': "Email Invalid"},status=status.HTTP_400_BAD_REQUEST)
     
 class UserDetails(APIView):
-    def get(self,request,id):
+    authentication_classes =[JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
             try:
-                user_detail = UserDetail.objects.get(id=id)
+                user_detail = UserDetail.objects.get(id=request.data['id'])
                 serializer = UserDetailSerializer(user_detail)
                 return Response({"status": "success", "data": serializer.data}, status=status.HTTP_200_OK)
             except:
@@ -115,5 +105,35 @@ class UserDetails(APIView):
 
 
 
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
 
+class LoginView(APIView):
+    def post(self, request, format=None):
+        data = request.data
+        response = Response()        
+        username = data.get('username', None)
+        password = data.get('password', None)
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                data = get_tokens_for_user(user)
+                response.set_cookie(
+                    key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
+                    value = data["access"],
+                    expires = settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+                    secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                    httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                    samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
+                )
+                response.data = {"Success" : "Login successfully","data":data}
+                return response
+            else:
+                return Response({"No active" : "This account is not active!!"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({"Invalid" : "Invalid username or password!!"}, status=status.HTTP_404_NOT_FOUND)
 

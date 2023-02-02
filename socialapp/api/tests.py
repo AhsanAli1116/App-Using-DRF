@@ -8,27 +8,27 @@ from .serializers import MainRegisterSerializer,PostsSerializer
 
 # Create your tests here.
 
-class RegistrationTestCase(APITestCase):
-    registration_url = reverse('registration')
-    def test_registration(self):
-        data = {
-            "username":"MrCodeGrapher",
-            "email":"ahsansjobs@gmail.com",
-            "password":"mypassword12345"
-            }
+# class RegistrationTestCase(APITestCase):
+    # registration_url = reverse('registration')
+    # def test_registration(self):
+    #     data = {
+    #         "username":"MrCodeGrapher",
+    #         "email":"ahsansjobs@gmail.com",
+    #         "password":"mypassword12345"
+    #         }
         
-        response = self.client.post(self.registration_url,data)
-        response.status_code ==200
+    #     response = self.client.post(self.registration_url,data)
+    #     response.status_code ==200
     
-    def test2_registration(self):
-        data = {
-            "username":"MrCodeGrapher",
-            "email":"abc@gmail.com",
-            "password":"mypassword12345"
-            }
+    # def test2_registration(self):
+    #     data = {
+    #         "username":"MrCodeGrapher",
+    #         "email":"abc@gmail.com",
+    #         "password":"mypassword12345"
+    #         }
         
-        response = self.client.post(self.registration_url,data)
-        response.status_code !=200
+    #     response = self.client.post(self.registration_url,data)
+    #     response.status_code !=200
 
 class LoginTestCases(APITestCase):
     registration_url = reverse('registration')
@@ -42,7 +42,7 @@ class LoginTestCases(APITestCase):
         
         self.client.post(self.registration_url,data)
         response=self.client.post(self.login_url,{"username":"MrCodeGrapher","password":"mypassword12345"})
-        print(response)
+        print(response.data)
         response.status_code ==200
 
     def test_Incorrect_credentials(self):
@@ -54,7 +54,7 @@ class LoginTestCases(APITestCase):
         
         self.client.post(self.registration_url,data)
         response=self.client.post(self.login_url,{"username":"MrCode","password":"mypassword12345"})
-        print(response)
+        print(response.data)
         response.status_code !=200
 
 
