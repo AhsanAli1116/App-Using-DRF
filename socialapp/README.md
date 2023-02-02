@@ -15,7 +15,7 @@ there is an app name api in the project named social app
 
 /login : for getting the JWT access and refresh token for user login
 
-api/user/<str:id>: for get username information
+api/user: for get username information
 
 api/token/refresh/ : for refresh the jwt tokken
 
