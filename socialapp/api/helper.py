@@ -1,6 +1,8 @@
-import requests,json,sys
-from requests.adapters import HTTPAdapter, Retry
+import json
+import sys
 
+import requests
+from requests.adapters import HTTPAdapter, Retry
 
 retries = Retry(total=5, backoff_factor=1, status_forcelist=[ 502, 503, 504 ])
 

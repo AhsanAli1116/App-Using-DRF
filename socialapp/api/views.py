@@ -1,20 +1,19 @@
-import json
-from django.http.request import QueryDict,MultiValueDict
+from django.conf import settings
+from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
-from django.http import HttpResponse
-from django.shortcuts import render
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.conf import settings
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from .helper import is_email_valid, user_data
 from .models import Posts, UserDetail
-from .serializers import MainRegisterSerializer, PostsSerializer,UserDetailSerializer
-from django.contrib.auth import authenticate
-from rest_framework_simplejwt.tokens import RefreshToken
+from .serializers import (MainRegisterSerializer, PostsSerializer,
+                          UserDetailSerializer)
+
 
 # Create your views here.
 class PostsApi(APIView):
