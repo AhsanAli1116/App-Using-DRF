@@ -10,6 +10,7 @@ class Posts(models.Model):
     date_published=models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     likes = models.ManyToManyField(User, related_name='blogpost_like',blank=True)
+    unlikes = models.ManyToManyField(User, related_name='blogpost_unlike',blank=True)
 
     def __str__(self):
         return self.title

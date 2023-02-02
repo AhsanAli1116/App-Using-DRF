@@ -1,3 +1,5 @@
+import json
+from django.http.request import QueryDict,MultiValueDict
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.http import HttpResponse
@@ -42,14 +44,33 @@ class PostsApi(APIView):
         try:
             pid = request.data['id']
             post = Posts.objects.get(id=pid)
-            serializer = PostsSerializer(post, data=request.data, partial=True)
+            post_likes = post.likes.all()
+            post_dislikes = post.unlikes.all()
+            data = request.data
+            data._mutable =True
+            if  'likes' in data:
+                like_by = User.objects.get(id=data['likes'])
+                if like_by in post_dislikes:
+                    post.unlikes.remove(like_by)
+                post.likes.add(like_by)         
+                data.pop('likes')
+            if 'unlikes' in data:
+                dislike_by = User.objects.get(id=data['unlikes'])
+                if dislike_by in post_likes:
+                    post.likes.remove(dislike_by)
+                    
+                post.unlikes.add(dislike_by)
+                data.pop('unlikes')
+
+
+            serializer = PostsSerializer(post, data=data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response({"status": "success", "data": serializer.data},status=status.HTTP_200_OK)
             else:
                 return Response({"status": "error", "data": serializer.errors},status=status.HTTP_400_BAD_REQUEST)
         except:
-             return Response({"status": "error", "data": "Post Not Found"},status=status.HTTP_400_BAD_REQUEST)
+             return Response({"status": "error"},status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request,id):
         try:
