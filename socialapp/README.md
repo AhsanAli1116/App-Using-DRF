@@ -11,17 +11,14 @@ Clone the repository and install requirments.txt and project is ready to run.
 there is an app name api in the project named social app
 ## Provided Urls: 
 
-api/registration : for register 
+/registration : for register 
+
+/login : for getting the JWT access and refresh token for user login
 
 api/user/<str:id>: for get username information
 
-api/login : for getting the JWT access and refresh token for user login
-
 api/token/refresh/ : for refresh the jwt tokken
 
-api/posts : for all posts
-
-api/posts/<str:id> : for getting specify user posts
-
+api/posts : for all posts CRUD Operation, like and unlike 
 
 

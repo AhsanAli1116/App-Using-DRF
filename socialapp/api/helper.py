@@ -8,7 +8,7 @@ def is_email_valid(email):
     try:
         s = requests.Session()
         s.mount('https://', HTTPAdapter(max_retries=retries))
-        response = s.get(f"https://emailvalidation.abstractapi.com/v1/?api_key=eb5f0467e7be49e89eece580942a3623&email={email}")
+        response = s.get(f"https://emailvalidation.abstractapi.com/v1/?api_key=b7ebc0281bb34dcb8c6e0aa171f0dc8a&email={email}")
         if response.status_code==200:
             data=json.loads(response.content.decode(sys.stdout.encoding))
             format=data['is_valid_format']['value']
@@ -25,7 +25,7 @@ def get_geo_location():
     try:
         s = requests.Session()
         s.mount('https://', HTTPAdapter(max_retries=retries))
-        response = s.get("https://ipgeolocation.abstractapi.com/v1/?api_key=34ea545ba9f644048b565e88c4cd8b76")
+        response = s.get("https://ipgeolocation.abstractapi.com/v1/?api_key=cfce2b75a512448189caa9a69f8db160")
         if response.status_code==200:
             data=json.loads(response.content.decode(sys.stdout.encoding))
             city=data['city']
@@ -45,13 +45,13 @@ def is_holiday(city,country_code):
     try:
         s = requests.Session()
         s.mount('https://', HTTPAdapter(max_retries=retries))
-        response = s.get(f"https://timezone.abstractapi.com/v1/current_time/?api_key=e4e1af62e8db4dd2a539f202eac86243&location={location}")
+        response = s.get(f"https://timezone.abstractapi.com/v1/current_time/?api_key=57ce3f044491430eac416bc6462d2913&location={location}")
         if response.status_code==200:
             data=json.loads(response.content.decode(sys.stdout.encoding))
             year,month,day=data['datetime'].split(' ')[0].split('-')
             s = requests.Session()
             s.mount('https://', HTTPAdapter(max_retries=retries))
-            response_1 = s.get(f"https://holidays.abstractapi.com/v1/?api_key=058bf6346c14479d94202d3967ab2b46&country={country_code}&year={year}&month={month}&day={day}")
+            response_1 = s.get(f"https://holidays.abstractapi.com/v1/?api_key=b84bb02b6e384035a38d8bff5e518a59&country={country_code}&year={year}&month={month}&day={day}")
             if response_1.status_code==200:
                 data=json.loads(response_1.content.decode(sys.stdout.encoding))
                 if data:
@@ -60,7 +60,7 @@ def is_holiday(city,country_code):
                 else:
                     return (False,"")
             else:
-                return (response_1.status_code)
+                return response_1.status_code
 
         else:
             return (response.status_code)
@@ -70,12 +70,12 @@ def is_holiday(city,country_code):
 
 def user_data(email):
     gl= get_geo_location()
-    if  len(gl) == 1:
+    if  type(gl) != tuple:
         city,country,country_code=""
     else:
         city,country,country_code=gl
         holi=is_holiday(city,country_code)
-        if len(holi) ==1:
+        if type(holi) != tuple:
             bool_holi,holi_name=False,""
         else:
             bool_holi,holi_name=holi

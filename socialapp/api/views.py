@@ -72,14 +72,14 @@ class PostsApi(APIView):
         except:
              return Response({"status": "error"},status=status.HTTP_400_BAD_REQUEST)
     
-    def delete(self, request,id):
+    def delete(self, request):
         try:
             pid = request.data['id']
-            post = Posts.objects.get(Posts, id=pid)
+            post = Posts.objects.get(id=pid)
             post.delete()
-            return Response({"status": "success", "data": "Post Deleted"})
+            return Response({"status": "success", "data": "Post Deleted"},status=status.HTTP_200_OK)
         except:
-            return Response({"status": "error", "data": "Post not found"})
+            return Response({"status": "error", "data": "Post not found"},status=status.HTTP_400_BAD_REQUEST)
    
    
 
@@ -89,8 +89,8 @@ class RegistrationApi(APIView):
     def post(self,request):
         email = request.data['email']
         email_check=is_email_valid(email)
-        if len(email_check)==1:
-            email_format,email_smtp=False
+        if type(email_check)==int:
+            email_format,email_smtp=False,False
         else:
             email_format,email_smtp=email_check
         if email_format and email_smtp:
