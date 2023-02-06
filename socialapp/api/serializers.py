@@ -6,19 +6,20 @@ from .models import Posts, UserDetail
 
 class PostsSerializer(serializers.ModelSerializer):
     class Meta:
-        model=Posts
-        fields = ['id','title','body','author']
-        # fields ="__all__"
+        model = Posts
+        fields = ["id", "title", "body", "author"]
+
 
 class MainRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username','email','password']
-        extra_kwargs = {'password': {'write_only': True}}
-        
+        fields = ["username", "email", "password"]
+        extra_kwargs = {"password": {"write_only": True}}
+
 
 class UserDetailSerializer(serializers.ModelSerializer):
     user = MainRegisterSerializer()
+
     class Meta:
         model = UserDetail
-        fields = ["user","country","country_code","city","holiday"]
+        fields = ["user", "country", "country_code", "city", "holiday"]
