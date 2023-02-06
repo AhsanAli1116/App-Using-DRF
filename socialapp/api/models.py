@@ -4,6 +4,8 @@ from django.db import models
 
 # Create your models here.
 class Posts(models.Model):
+    """Model class for creating posts """
+
     id = models.IntegerField(primary_key=True)
     title = models.CharField(max_length=50, null=False, blank=True)
     body = models.CharField(max_length=500, null=True, blank=True)
@@ -21,6 +23,8 @@ class Posts(models.Model):
 
 
 class UserDetail(models.Model):
+    """Model class for additional user information"""
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     country = models.CharField(max_length=50, blank=True, null=True)
     country_code = models.CharField(max_length=10, blank=True, null=True)

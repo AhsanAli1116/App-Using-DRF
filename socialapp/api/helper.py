@@ -3,11 +3,17 @@ import sys
 
 import requests
 from requests.adapters import HTTPAdapter, Retry
+from rest_framework_simplejwt.tokens import RefreshToken
 
 retries = Retry(total=5, backoff_factor=1, status_forcelist=[502, 503, 504])
 
 
 def is_email_valid(email):
+    """Return: boolean values if email format and smtp is valid
+    values: format, smtp
+    It checks the format and smtp of email using abstract api.
+    """
+
     try:
         s = requests.Session()
         s.mount("https://", HTTPAdapter(max_retries=retries))
@@ -27,6 +33,10 @@ def is_email_valid(email):
 
 
 def get_geo_location():
+    """Returns: city,country,country_code
+    It returns user city, countryname and country_code
+    using abstract ipgeolocation api.
+    """
     try:
         s = requests.Session()
         s.mount("https://", HTTPAdapter(max_retries=retries))
@@ -46,6 +56,12 @@ def get_geo_location():
 
 
 def is_holiday(city, country_code):
+    """Returns: Boolean and String values
+    values: boolean,holiday
+    It returns the holiday name of the user country
+    on his/her registration data.
+    """
+
     if not (city is None or country_code is None):
         location = city + "," + country_code
     else:
@@ -83,6 +99,11 @@ def is_holiday(city, country_code):
 
 
 def user_data(email):
+    """Returns: dictionary object
+    It is used to manipulate the data of user
+    This function is used as wrapper function.
+    """
+
     gl = get_geo_location()
     if type(gl) != tuple:
         city, country, country_code = ""
@@ -100,3 +121,14 @@ def user_data(email):
         "is_holiday": bool_holi,
         "holiday": holi_name,
     }
+
+
+def get_tokens_for_user(user):
+    """Returns: Dictionary object
+    This function is a wrapper function
+    which returns the user JWT access and
+    refresh token.
+    """
+
+    refresh = RefreshToken.for_user(user)
+    return {"refresh": str(refresh), "access": str(refresh.access_token)}

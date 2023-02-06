@@ -5,12 +5,14 @@ from .models import Posts, UserDetail
 
 
 class PostsSerializer(serializers.ModelSerializer):
+    """Model Serializer for Post model"""
     class Meta:
         model = Posts
         fields = ["id", "title", "body", "author"]
 
 
 class MainRegisterSerializer(serializers.ModelSerializer):
+    """Model Serializer For django default User model """
     class Meta:
         model = User
         fields = ["username", "email", "password"]
@@ -18,6 +20,8 @@ class MainRegisterSerializer(serializers.ModelSerializer):
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
+    """Model Serializer For UserDetail model."""
+
     user = MainRegisterSerializer()
 
     class Meta:

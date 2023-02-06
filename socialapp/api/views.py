@@ -7,22 +7,26 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.tokens import RefreshToken
 
-from .helper import is_email_valid, user_data
+
+from .helper import is_email_valid, user_data, get_tokens_for_user
 from .models import Posts, UserDetail
 from .serializers import MainRegisterSerializer, PostsSerializer, UserDetailSerializer
 
 
 # Create your views here.
 class PostsApi(APIView):
+    """Provides CRUD api request methods for posts functionality
+    params: parameters for all methods pass in request body
+    """
+
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         """get request method
         return: all posts
-        params: userid
+        optional_params: userid
         it returns all posts and if user id then returns posts
         of that user.
         """
@@ -49,7 +53,7 @@ class PostsApi(APIView):
 
     def post(self, request):
         """post request method
-        required_params: title,body,author(user id)
+        required_params: title,body,author(user ID)
         creates new post.
         """
         serializer = PostsSerializer(data=request.data)
@@ -66,6 +70,12 @@ class PostsApi(APIView):
             )
 
     def put(self, request):
+        """ put request method
+        required_params: pid(post ID)
+        optional_params: title, body, likes(User ID), unlikes(User ID)
+        it updates the post.
+        """
+
         try:
             pid = request.data["id"]
             post = Posts.objects.get(id=pid)
@@ -104,6 +114,11 @@ class PostsApi(APIView):
             )
 
     def delete(self, request):
+        """ delete request method
+        required_params: pid (post ID)
+        it delete the post.
+        """
+
         try:
             pid = request.data["id"]
             post = Posts.objects.get(id=pid)
@@ -120,9 +135,16 @@ class PostsApi(APIView):
 
 
 class RegistrationApi(APIView):
+    """ Provides api to register user. """
+
     serializer_class = MainRegisterSerializer
 
     def post(self, request):
+        """ post request method
+        required_params: username, email, password
+        create new user
+        """
+
         email = request.data["email"]
         email_check = is_email_valid(email)
         if type(email_check) == int:
@@ -165,10 +187,15 @@ class RegistrationApi(APIView):
 
 
 class UserDetails(APIView):
+    """ provides api to get all users. """
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        """ get request method
+        return: data of all register users.
+        """
+
         try:
             user_detail = UserDetail.objects.get(id=request.data["id"])
             serializer = UserDetailSerializer(user_detail)
@@ -182,16 +209,16 @@ class UserDetails(APIView):
             )
 
 
-def get_tokens_for_user(user):
-    refresh = RefreshToken.for_user(user)
-    return {
-        "refresh": str(refresh),
-        "access": str(refresh.access_token),
-    }
-
-
 class LoginView(APIView):
+    """ Provides api for user login and authentication"""
+
     def post(self, request, format=None):
+        """ Post request method
+        required_params: username, password
+        return: it returns user JWT access and refresh token
+        It also saves the access token in browser cookies.
+        """
+
         data = request.data
         response = Response()
         username = data.get("username", None)
