@@ -137,14 +137,14 @@ class RegistrationApi(APIView):
                 username = serializer.validated_data.get("username")
                 serializer.save()
                 user = User.objects.get(username=username)
-                user_data = user_data(email)
+                user_data_ = user_data(email)
                 user_detail = UserDetail.objects.create(
                     user=user,
-                    city=user_data["city"],
-                    country=user_data["country"],
-                    country_code=user_data["country_code"],
-                    is_holiday=user_data["is_holiday"],
-                    holiday=user_data["holiday"],
+                    city=user_data_["city"],
+                    country=user_data_["country"],
+                    country_code=user_data_["country_code"],
+                    is_holiday=user_data_["is_holiday"],
+                    holiday=user_data_["holiday"],
                 )
                 user_detail.save()
 
